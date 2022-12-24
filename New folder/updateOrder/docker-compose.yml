@@ -1,0 +1,9 @@
+version: "3.3"
+services:
+  oda-cc-updateOrder:
+    build: .
+    image: "oda-cc-updateOrder:1.0"
+    container_name: "oda-cc-updateOrder"
+    command: "npm start"
+    ports:
+      - 3000:3000    

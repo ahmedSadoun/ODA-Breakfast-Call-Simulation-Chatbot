@@ -1,0 +1,138 @@
+"use strict";
+
+// You can use your favorite http client package to make REST calls, however, the node fetch API is pre-installed with the bots-node-sdk.
+// Documentation can be found at https://www.npmjs.com/package/node-fetch
+// Un-comment the next line if you want to make REST calls using node-fetch.
+// const fetch = require("node-fetch");
+
+module.exports = {
+  metadata: () => ({
+    name: "confirmService",
+    properties: {
+      clientName: { required: true, type: "string" },
+      clientAddress: { required: true, type: "string" },
+      clientPhoneNumber: { required: true, type: "string" },
+      orderItemName: { required: true, type: "string" },
+      qty: { required: true, type: "int" },
+      size: { required: true, type: "string" },
+      orderNumer: { required: false, type: "string" },
+    },
+    supportedActions: ["printConfirmation"],
+  }),
+
+  /**
+   * invoke methods gets called when the custom component state is executed in the dialog flow
+   * @param {CustomComponentContext} context
+   */
+  invoke: async (context, done) => {
+    // Retrieve the value of the 'human' component property.
+    const { clientName } = context.properties();
+    const { clientAddress } = context.properties();
+    const { clientPhoneNumber } = context.properties();
+    const { orderItemName } = context.properties();
+    const { qty } = context.properties();
+    const { size } = context.properties();
+    const { orderNumber } = context.properties();
+    // Determine the current date
+    context.logger().info("hi there");
+    let orderLIst = [];
+    orderLIst.push(creatOrder()); // moch data
+
+    // if the orderNumber is null then this is a creation process not and update set the clientOrder to null to proceed to the creation.
+    if (orderNumber) {
+      clientOrder = findSpecificOrderWithItsNumber(orderNumer, orderLIst);
+    } else {
+      clientOrder = null;
+    }
+    if (!clientOrder) {
+      orderLIst = createNewOrderIfNotExisted(orderLIst);
+      const orderNumer = clientOrder.orderNumer;
+      context.setVariable("orderNumber", orderNumer.toString());
+      context.transition("printConfirmation");
+      done();
+    }
+    context.reply(generateMessage(clientOrder));
+    clientOrder = creatOrUpdatAnOrderObject(
+      clientName,
+      clientAddress,
+      clientPhoneNumber,
+      orderItemName,
+      qty,
+      size,
+      orderLIst
+    );
+    context.reply("تم تعديل الأوردر ي أفندم");
+    context.reply(generateMessage(clientOrder)).reply("تمام كدا ي افندم");
+    done();
+  },
+};
+
+function creatOrUpdatAnOrderObject(
+  clientName,
+  clientAddress,
+  clientPhoneNumber,
+  orderItemName,
+  qty,
+  size,
+  orderList
+) {
+  let clientOrder = {};
+  if (findAnItemByItsName(orderList, orderItemName, size)) {
+    clientOrder.qty += qty;
+    clientOrder.dateTime = Date.now;
+    return clientOrder;
+  }
+  clientOrder.clientName = clientName;
+  clientOrder.clientAddress = clientAddress;
+  clientOrder.clientPhoneNumber = clientPhoneNumber;
+  clientOrder.orderItemName = orderItemName;
+  clientOrder.orderItemSize = size;
+  clientOrder.orderItemQty = qty;
+  clientOrder.orderNumer = Math.floor(Math.random() * 100 + 1); //let x = Math.floor((Math.random() * 100) + 1);
+  clientOrder.dateTime = Date.now;
+  clientOrder.wentOut = false;
+  clientOrder.deliverd = false;
+  return clientOrder;
+}
+function findSpecificOrderWithItsNumber(orderNumber, list) {
+  return list.find((order) => order.orderNumer === orderNumber);
+}
+function addMochDataToTheArray(clientOrder) {
+  let list = [];
+  list.push(clientOrder);
+  return list;
+}
+function createNewOrderIfNotExisted(orderLIst) {
+  let clientOrder = creatOrUpdatAnOrderObject(
+    clientName,
+    clientAddress,
+    clientPhoneNumber,
+    orderItemName,
+    qty,
+    size
+  );
+  orderLIst = addMochDataToTheArray(clientOrder);
+}
+function findAnItemByItsName(orderList, itmName, size) {
+  return orderList.find(
+    (itm) => itm.orderItemName === itmName && itm.size === size
+  ); // return the itm that satisfies the condition.
+}
+function creatOrder() {
+  let clientOrder = {};
+  clientOrder.clientName = "احمد";
+  clientOrder.clientAddress = "القاهره";
+  clientOrder.clientPhoneNumber = "01003057274";
+  clientOrder.orderItemName = "فول";
+  clientOrder.orderItemSize = "وسط";
+  clientOrder.orderItemQty = 1;
+  clientOrder.orderNumer = "15"; //let x = Math.floor((Math.random() * 100) + 1);
+  clientOrder.dateTime = Date.now;
+  clientOrder.wentOut = false;
+  clientOrder.deliverd = false;
+  return clientOrder;
+}
+function generateMessage(clientOrder) {
+  let message = `${clientOrder.orderItemName} \n ${clientOrder.orderItemSize} \n ${clientOrder.orderItemQty} \n `;
+  return message;
+}

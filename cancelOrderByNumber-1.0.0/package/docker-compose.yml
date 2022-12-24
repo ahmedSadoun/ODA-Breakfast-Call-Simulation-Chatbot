@@ -1,0 +1,9 @@
+version: "3.3"
+services:
+  oda-cc-cancelOrderByNumber:
+    build: .
+    image: "oda-cc-cancelOrderByNumber:1.0"
+    container_name: "oda-cc-cancelOrderByNumber"
+    command: "npm start"
+    ports:
+      - 3000:3000    

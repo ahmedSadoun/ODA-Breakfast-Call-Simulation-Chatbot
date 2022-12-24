@@ -1,0 +1,1 @@
+bots-node-sdk init updateOrder --name updateOrder --component-name updateOrderService

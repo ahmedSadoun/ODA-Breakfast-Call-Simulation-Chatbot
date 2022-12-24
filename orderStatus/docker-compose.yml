@@ -1,0 +1,9 @@
+version: "3.3"
+services:
+  oda-cc-orderStatus:
+    build: .
+    image: "oda-cc-orderStatus:1.0"
+    container_name: "oda-cc-orderStatus"
+    command: "npm start"
+    ports:
+      - 3000:3000    
